@@ -61,15 +61,20 @@ Y → Grupo do arquivo/diretório (Group)
 Z → Outros usuários (Others)
 Os números representam permissões:
 
-7 (rwx) → Leitura, escrita e execução
-6 (rw-) → Leitura + Escrita
-5 (r-x) → Apenas leitura e execução
 4 (r--) → Apenas leitura
-3 (-wx) → Escrita + Execução
 2 (-w-) → Apenas escrita
 1 (--x) → Apenas execução
 0 (---) → Nenhuma permissão
-
+----------
+CHMOD parte da somatória deles, Exemplo:
+    
+    (root/dono)    grupo    outros
+    
+    leitura  (4)      -    -
++   execução (1)      -    - 
+    escritra (2)      -    -
+-----------------------------------
+CHMOD          600
 ```
 
 ## PERMISSÕES DE CHMOD
