@@ -1,85 +1,105 @@
 # cybersec
 
+## Informações úteis 
 
+- APACHE por padrão trabalha na porta 80
+- PORTA 22 = serviço SSH
 
-
-## INSTALAÇÃO
 
 ```bash
-apt install apache2 apache2-utils -y
-apt install net-tools
-apt-get install netcat
+service apache2 status
+
+service apache2 stop
+
+service apache2 start
+
+service apache2 restart
 ```
 
-## Revisão rápida:
 ```bash
-- User-Agent → curl -A
-- POST → curl -X POST -d
-- Auth → curl -H "Authorization: Basic ..."
-- Base64 → echo -n "usuario:senha" | base64
-```
-## CURL - Comandos e suas funcionalidades
+apt install net-tools (netStat)
 
-- **CURL BÁSICO - GET**
+apt update —> apt install apache2 —> (S) 
 
-Acessa a página inicial e exibe o conteúdo HTML.
-```bash
-curl http://ip-da-vm 
-OU 
-curl http://ip-da-vm | less (para exibição gradual)
-
-```
-![image](https://github.com/user-attachments/assets/9da44276-51ea-4d69-97b5-d6f7d2145049)
-
-
-- **CURL -I (HEAD)**
-
-Mostra apenas os cabeçalhos HTTP, incluindo informações úteis como o X-Dica
-
-```bash
-curl -I http://ip-da-vm 
-OU 
-curl --head http://ip-da-vm
-
-```
-
-![image](https://github.com/user-attachments/assets/2d79b157-1dd9-4494-9614-c3928b00da35)
-
-- **CURL -A (User-Agent)**
-
-Altera o cabeçalho User-Agent para liberar respostas personalizadas
-```bash
-curl -A "Aluno" http://<ip-da-vm>/agent/
-```
-![image](https://github.com/user-attachments/assets/8d01b6bc-e750-41b0-ae25-a798067e6230)
-
-- **curl -X POST -d**
-
-Simula o envio de um formulário via POST.
-```bash
-curl -X POST -d "user=teste" http://<ip-da-vm>/posttest/
-```
-![image](https://github.com/user-attachments/assets/36000342-f9dc-4289-859c-50ef9f44ce9f)
-
-_exemplo feito em casa com URL publica sem o -d_ 
-
-![image](https://github.com/user-attachments/assets/784ec117-c248-4a2f-8a86-8d0f1e583de5)
-
-- **curl com Authorization**
-
-Usado para autenticação simples via HTTP. 
-
-No exeomplo é transformada a senha (test:senha) para base64 e depois enviada a requisição com essa senha
-```bash
-echo -n "test:senha" | base64
-Resultado: dGVzdGU6c2VuaGE=
-curl -H "Authorization: Basic dGVzdGU6c2VuaGE=" http://<ip-da-vm>/authtest/
-```
-
-- **Acesso direto a diretorios**
-```bash
-curl http://<ip-da-vm>/oculto/dica.txt
+netstat -nltp (ver portas ativas)
 ```
 
 
+- cd var/www/html
+    - pagina HTML que encontramos ao entrar no url do IP puro
+    - tudo que será feito nessa pasta irá refletir para o cliente
+    - o INDEX.HTML “cobre” os outros arquivos criados por abrir automaticamente quando entramos no IP
 
+## Visualização **SEM** o index.html
+
+![image](https://github.com/user-attachments/assets/4d4e49a7-46be-497d-8bda-854c46342bc8)
+
+falhas de vulnerabilidade nesse caso: 
+
+- Versão do Apache
+- Versão do Debian
+- IP do servidor
+- Porta do servidor
+
+```bash
+VALIDA AS PORTAS ABERTAS:
+
+ss -nltp 
+```
+![image](https://github.com/user-attachments/assets/57b1c7a6-424a-4fae-992c-71792100bf43)
+
+```bash
+CONEXÕES ATIVAS:
+
+netstat -nltp
+```
+![image](https://github.com/user-attachments/assets/e53983e1-53e6-4785-b47a-10037391a294)
+
+
+# Configurações para prevenir vulnerabilidade
+
+### Parte 1.
+```bash
+nano /etc/apache2/apache2.conf
+```
+- Remover “indexes”
+    
+    ![image](https://github.com/user-attachments/assets/82a3fec3-6f2f-49cc-b7b0-52e1e1fc5741)
+
+    
+    Então proibirá de ver os arquivos criados no servidor
+    
+    ![image](https://github.com/user-attachments/assets/572ef97e-3551-42bd-9b48-b7277823db86)
+
+    
+
+### Parte 2.
+
+nano /etc/apache2/conf-enabled/security.conf
+
+- Alterar para modo Prod e desligar assinatura
+    
+    ![image](https://github.com/user-attachments/assets/111910ce-009f-42a5-beaa-3763755e188f)
+
+    
+    Resultado:
+    
+    ![image](https://github.com/user-attachments/assets/4112068a-bbe6-479f-b856-ae681b9d4875)
+
+    
+    Some o banner da pagina
+    
+
+## Como ver o log do apache2
+```bash
+cd var/log/apache2
+```    
+   ![image](https://github.com/user-attachments/assets/a2780c37-0fe7-4d6d-9319-a347f475a3fa)
+
+    
+
+## Como alterar a porta do servidor apache2
+```bash
+cd /etc/apache2/ports.conf
+```
+![image](https://github.com/user-attachments/assets/abfb26ab-f6f7-4467-9c1b-02354375a8c5)
