@@ -58,8 +58,11 @@ curl -A "Aluno" http://<ip-da-vm>/agent/
 Simula o envio de um formulário via POST.
 ```bash
 curl -X POST -d "user=teste" http://<ip-da-vm>/posttest/
-_exemplo feito em casa com URL publica sem o -d_ 
 ```
+![image](https://github.com/user-attachments/assets/36000342-f9dc-4289-859c-50ef9f44ce9f)
+
+_exemplo feito em casa com URL publica sem o -d_ 
+
 ![image](https://github.com/user-attachments/assets/784ec117-c248-4a2f-8a86-8d0f1e583de5)
 
 - **curl com Authorization**
