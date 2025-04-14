@@ -3,136 +3,80 @@
 
 
 
-## Configurações padrões para a rede
+## INSTALAÇÃO
 
 ```bash
-nano /etc/network/interfaces
-
-# PORTA 03 --> NAT (CONFIGURADA COM DCHP)
-# PORTA 08 --> BRIDGE (CONFIGURADA COM DHCP)
-# PORTA 09 --> REDE INTERNA (CONFIGURA ESTATICAMENTE) com máscara /24 (equivalente a 255.255.255.0)
+apt install apache2 apache2-utils -y
+apt install net-tools
+apt-get install netcat
 ```
 
-Em seguida, faça a configuração para as portas da seguinte maneira: 
-(OBS: porta 1: NAT | porta 2: Bridge | porta 3: interna)
-
-![image](https://github.com/user-attachments/assets/5ce37094-e7e4-46e1-9b68-b26b34845728)
-
+## Revisão rápida:
 ```bash
-#08 BRIDGE
-allow-hotplug enp0s8
-iface enp0s8 inet dhcp
-
-#09 INTERNA
-allow-hotplug enp0s9
-iface enp0s9 inet static
-address 192.168.15.2/24
-
-
-# PÓS CONFIG --> ifdown/ifup nas portas (enp0s8; enp0s9)
-ifup enp0s8
-ifup enp0s9
-
-ifdown enp0s8
-ifdown enp0s9
+- User-Agent → curl -A
+- POST → curl -X POST -d
+- Auth → curl -H "Authorization: Basic ..."
+- Base64 → echo -n "usuario:senha" | base64
 ```
+## CURL - Comandos e suas funcionalidades
 
+- **CURL BÁSICO - GET**
 
-## Criação do arquivo (na pasta do usuário)
-
+Acessa a página inicial e exibe o conteúdo HTML.
 ```bash
-cd home
-cd aluno
+curl http://ip-da-vm 
+OU 
+curl http://ip-da-vm | less (para exibição gradual)
 
-mkdir pasta_teste
-cd pasta teste
-
-touch arquivo_teste.txt
-
-nano arquivo_teste.txt
 ```
+![image](https://github.com/user-attachments/assets/9da44276-51ea-4d69-97b5-d6f7d2145049)
 
-## Explicação breve CHMOD
-```bash
-O comando chmod XYZ define permissões para três categorias:
 
-X → Dono do arquivo/diretório (Owner)
-Y → Grupo do arquivo/diretório (Group)
-Z → Outros usuários (Others)
-Os números representam permissões:
+- **CURL -I (HEAD)**
 
-4 (r--) → Apenas leitura
-2 (-w-) → Apenas escrita
-1 (--x) → Apenas execução
-0 (---) → Nenhuma permissão
-----------
-CHMOD parte da somatória deles, Exemplo:
-    
-    (root/dono)    grupo    outros
-    
-    leitura  (4)      -    -
-+   execução (1)      -    - 
-    escritra (2)      -    -
------------------------------------
-CHMOD          600
-```
-
-## PERMISSÕES DE CHMOD
+Mostra apenas os cabeçalhos HTTP, incluindo informações úteis como o X-Dica
 
 ```bash
-# Apenas o dono pode ver, escrever e executar
-chmod 700 /home/aluno/pasta_teste
-
-#OU
-
-# pasta sendo  visível (listável), mas os arquivos dentro dela não possam ser acessados:
-chmod 711 /home/aluno/pasta_teste
-
-# Somente o dono pode ler e escrever. Outros nem sabem que ele existe.
-chmod 600 /home/aluno/pasta_teste/arquivo_teste.txt
-```
-
-## Execução do servidor
-
-```bash
-# PARA RODAR COMO ROOT:
-python3 http.server 1234 (sobe o servidor como root)
-
-# PARA ALTERAR O USUÁRIO E RODAR COMO ALUNO
-su - aluno -c “python3 http.server 1234 —bind 0.0.0.0” (sobe o servidor como aluno no user de root)
-
-#OU
-su aluno
-python3 http.server 1234
+curl -I http://ip-da-vm 
+OU 
+curl --head http://ip-da-vm
 
 ```
 
-### Resumo das principais etapas:
+![image](https://github.com/user-attachments/assets/2d79b157-1dd9-4494-9614-c3928b00da35)
 
-1. **Criar usuário**: `*sudo* adduser usuario_exemplo`
-2. **Criar pasta**: `mkdir pasta_teste`
+- **CURL -A (User-Agent)**
 
-    2.1 **Remover pasta**:  `rmdir pasta_teste`
-   
-3. **Criar arquivo**: `touch pasta_teste/arquivo.txt`
-
-      3.1 **Escrever no arquivo**: nano /pasta_teste/arquivo.txt
-   
-      3.2 **Remover arquivo**: `rm pasta_teste/arquivo.txt`
-   
-4. **Permissões**:
-   - **Permissão restrita ao criador**: `chmod 710 pasta_protegida` e `chmod 600 pasta_protegida/arquivo.txt`
-   - **Permissão para todos**: `chmod 777 pasta_protegida` e `chmod 777 pasta_protegida/arquivo.txt`
-8. **Trocar de usuário**: `su - novo_usuario`
-9. **Trocar para root**: `su`
-
-
-## Comandos Extras
-
+Altera o cabeçalho User-Agent para liberar respostas personalizadas
 ```bash
-cat /etc/passwd --> lista usuarios criados
-
-useradd -m *nome* --> adiciona usuario
-usewrdel -r nome
-passwd *nome* --> altera senha do usuario
+curl -A "Aluno" http://<ip-da-vm>/agent/
 ```
+![image](https://github.com/user-attachments/assets/8d01b6bc-e750-41b0-ae25-a798067e6230)
+
+- **curl -X POST -d**
+
+Simula o envio de um formulário via POST.
+```bash
+curl -X POST -d "user=teste" http://<ip-da-vm>/posttest/
+_exemplo feito em casa com URL publica sem o -d_ 
+```
+![image](https://github.com/user-attachments/assets/784ec117-c248-4a2f-8a86-8d0f1e583de5)
+
+- **curl com Authorization**
+
+Usado para autenticação simples via HTTP. 
+
+No exeomplo é transformada a senha (test:senha) para base64 e depois enviada a requisição com essa senha
+```bash
+echo -n "test:senha" | base64
+Resultado: dGVzdGU6c2VuaGE=
+curl -H "Authorization: Basic dGVzdGU6c2VuaGE=" http://<ip-da-vm>/authtest/
+```
+
+- **Acesso direto a diretorios**
+```bash
+curl http://<ip-da-vm>/oculto/dica.txt
+```
+
+
+
