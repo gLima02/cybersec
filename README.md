@@ -7,6 +7,14 @@
 
 
 ```bash
+apt install net-tools (netStat)
+
+apt update —> apt install apache2 —> (S) 
+
+netstat -nltp (ver portas ativas)
+```
+
+```bash
 service apache2 status
 
 service apache2 stop
@@ -16,13 +24,6 @@ service apache2 start
 service apache2 restart
 ```
 
-```bash
-apt install net-tools (netStat)
-
-apt update —> apt install apache2 —> (S) 
-
-netstat -nltp (ver portas ativas)
-```
 
 
 - cd var/www/html
