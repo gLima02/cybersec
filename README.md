@@ -56,6 +56,15 @@ Exemplo de servidor configurado para 2 portas SSH
 
 ![image](https://github.com/user-attachments/assets/95f84f37-c102-47de-aebc-9c35c9b9ac9d)
 
+Vendo as portas abertas no servidor após nos conectarmos nele com Cliente via ssh 
+
+```bash
+ss -nltp
+```
+
+![image](https://github.com/user-attachments/assets/60570660-62d1-4c15-99e6-30b2ffcae52e)
+
+
 
 
 
