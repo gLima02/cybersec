@@ -88,3 +88,10 @@ a resposta certa retornará 302
 
 **/usr/share/wordlists/metasploit** > http_default_pass.txt | http_default_users.txt
 
+### GITHUB BYPASS
+
+https://github.com/payloadbox/sql-injection-payload-list/blob/master/Intruder/exploit/Auth_Bypass.txt
+
+
+<img width="868" height="479" alt="image" src="https://github.com/user-attachments/assets/8583a4e7-b125-4533-b269-5dc5a88ac4ae" />
+
