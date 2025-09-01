@@ -3,136 +3,67 @@
 
 
 
-## Configurações padrões para a rede
+## Configurações padrões para a rede (host-only) KALI + OWASP
+### Ferramentas > Rede > Propriedade
+* Placa
+<img width="1066" height="566" alt="Captura de tela 2025-08-31 214412" src="https://github.com/user-attachments/assets/58ce6706-5580-4aa8-aee0-fc3f5be90474"/>
+
+* Servidor DHCP
+<img width="1068" height="569" alt="2" src="https://github.com/user-attachments/assets/883207c6-2f40-4c04-9fd4-0c50ab6585d8" />
+
+
+* nano /etc/network/interfaces
+
+<img width="659" height="277" alt="3" src="https://github.com/user-attachments/assets/14194479-47fe-48e2-aee4-2d1ba64d2a1c" />
+
+
+## NETDISCOVER - BURP - PROXY
+
+Nesse caso, usamos o netdiscover para descobrirmos todos os HOSTS da rede. Como estão usando HOST-ONLY e, consequentemente, estão na mesma rede, a OWASP é revelada.
 
 ```bash
-nano /etc/network/interfaces
+netdiscover -i eth0 -P -r (ip rede)
 
-# PORTA 03 --> NAT (CONFIGURADA COM DCHP)
-# PORTA 08 --> BRIDGE (CONFIGURADA COM DHCP)
-# PORTA 09 --> REDE INTERNA (CONFIGURA ESTATICAMENTE) com máscara /24 (equivalente a 255.255.255.0)
+netdiscover -i eth0 -P -r 198.168.58.0/24
 ```
 
-Em seguida, faça a configuração para as portas da seguinte maneira: 
-(OBS: porta 1: NAT | porta 2: Bridge | porta 3: interna)
+<img width="659" height="293" alt="4" src="https://github.com/user-attachments/assets/29a59aa6-2854-4185-af71-f92764b9cc6d" />
 
-![image](https://github.com/user-attachments/assets/5ce37094-e7e4-46e1-9b68-b26b34845728)
+Ao pesquisarmos o IP da OWASP somos redirecionados ao portal dela, clicando em bWAPP conseguimos ir até a tela de login
 
-```bash
-#08 BRIDGE
-allow-hotplug enp0s8
-iface enp0s8 inet dhcp
+<img width="927" height="867" alt="image" src="https://github.com/user-attachments/assets/0f82b6ee-8f27-4551-a99b-06521f40c950" />
 
-#09 INTERNA
-allow-hotplug enp0s9
-iface enp0s9 inet static
-address 192.168.15.2/24
+## BURPSUITE - FOXYPROXY
 
+### FOXYPROXY
+No Mozila, em ADDONS, baixamos o *FOXYPROXY*
 
-# PÓS CONFIG --> ifdown/ifup nas portas (enp0s8; enp0s9)
-ifup enp0s8
-ifup enp0s9
+FOXYPROXY > OPTIONS > PROXIES
 
-ifdown enp0s8
-ifdown enp0s9
-```
+Configurações padrões do BURPSUITE na extensão:
 
+<img width="898" height="594" alt="image" src="https://github.com/user-attachments/assets/703291e6-5d44-4372-bd50-7c19300a554a" />
 
-## Criação do arquivo (na pasta do usuário)
+### BURPSUITE
 
-```bash
-cd home
-cd aluno
+Nas configurações apenas next-next-finish
 
-mkdir pasta_teste
-cd pasta teste
+- INTERCEPT ON
+Ao ligarmos o INTERCEPT, precisamos também ligar o FOXYPROXY para capturar as requisições do navegador e enviá-las ao BURP
 
-touch arquivo_teste.txt
+<img width="900" height="394" alt="image" src="https://github.com/user-attachments/assets/4982332b-9395-4d4a-a585-cf631386c73f" />
 
-nano arquivo_teste.txt
-```
+As requisições capturadas podem ser enviadas ao intruder para atacarmos login OU senha, 
 
-## Explicação breve CHMOD
-```bash
-O comando chmod XYZ define permissões para três categorias:
+*A opção FORWARD libera a requisição para o servidor
 
-X → Dono do arquivo/diretório (Owner)
-Y → Grupo do arquivo/diretório (Group)
-Z → Outros usuários (Others)
-Os números representam permissões:
+<img width="765" height="266" alt="image" src="https://github.com/user-attachments/assets/092a8436-fa91-4297-8c87-5779ef9f9e50" />
 
-4 (r--) → Apenas leitura
-2 (-w-) → Apenas escrita
-1 (--x) → Apenas execução
-0 (---) → Nenhuma permissão
-----------
-CHMOD parte da somatória deles, Exemplo:
-    
-    (root/dono)    grupo    outros
-    
-    leitura  (4)      -    -
-+   execução (1)      -    - 
-    escritra (2)      -    -
------------------------------------
-CHMOD          600
-```
+com base em uma lista de passwords já predefinida ou inserida a mão
 
-## PERMISSÕES DE CHMOD
+<img width="904" height="587" alt="image" src="https://github.com/user-attachments/assets/3011fdb2-c569-4d3f-8f20-dc34f99be84b" />
 
-```bash
-# Apenas o dono pode ver, escrever e executar
-chmod 700 /home/aluno/pasta_teste
+Snipper Attack 
+a resposta certa retornará 302 (nesse caso já sabemos o login) 
+<img width="874" height="329" alt="image" src="https://github.com/user-attachments/assets/8f3ebacd-86ff-4e0e-b626-2d24f09020a1" />
 
-#OU
-
-# pasta sendo  visível (listável), mas os arquivos dentro dela não possam ser acessados:
-chmod 711 /home/aluno/pasta_teste
-
-# Somente o dono pode ler e escrever. Outros nem sabem que ele existe.
-chmod 600 /home/aluno/pasta_teste/arquivo_teste.txt
-```
-
-## Execução do servidor
-
-```bash
-# PARA RODAR COMO ROOT:
-python3 http.server 1234 (sobe o servidor como root)
-
-# PARA ALTERAR O USUÁRIO E RODAR COMO ALUNO
-su - aluno -c “python3 http.server 1234 —bind 0.0.0.0” (sobe o servidor como aluno no user de root)
-
-#OU
-su aluno
-python3 http.server 1234
-
-```
-
-### Resumo das principais etapas:
-
-1. **Criar usuário**: `*sudo* adduser usuario_exemplo`
-2. **Criar pasta**: `mkdir pasta_teste`
-
-    2.1 **Remover pasta**:  `rmdir pasta_teste`
-   
-3. **Criar arquivo**: `touch pasta_teste/arquivo.txt`
-
-      3.1 **Escrever no arquivo**: nano /pasta_teste/arquivo.txt
-   
-      3.2 **Remover arquivo**: `rm pasta_teste/arquivo.txt`
-   
-4. **Permissões**:
-   - **Permissão restrita ao criador**: `chmod 710 pasta_protegida` e `chmod 600 pasta_protegida/arquivo.txt`
-   - **Permissão para todos**: `chmod 777 pasta_protegida` e `chmod 777 pasta_protegida/arquivo.txt`
-8. **Trocar de usuário**: `su - novo_usuario`
-9. **Trocar para root**: `su`
-
-
-## Comandos Extras
-
-```bash
-cat /etc/passwd --> lista usuarios criados
-
-useradd -m *nome* --> adiciona usuario
-usewrdel -r nome
-passwd *nome* --> altera senha do usuario
-```
